@@ -57,7 +57,6 @@ struct mac {
 	struct timespec ts;
 	struct list_head neigh4;
 	struct list_head neigh6;
-	struct list_head wifi;
 	struct list_head dhcpv4;
 	struct list_head bridge_mac;
 };
@@ -72,29 +71,6 @@ struct neigh {
 	char ifname[IF_NAMESIZE];
 
 	struct uloop_timeout ageing;
-};
-
-struct wifi_iface {
-	struct avl_node avl;
-	uint8_t addr[6];
-
-	struct blob_attr *info;
-	int noise;
-
-	char ifname[IF_NAMESIZE];
-	struct list_head stas;
-	struct uloop_timeout assoc;
-};
-
-struct wifi_station {
-	struct avl_node avl;
-	uint8_t addr[6];
-
-	struct blob_attr *info;
-
-	struct wifi_iface *wif;
-	struct list_head mac;
-	struct list_head iface;
 };
 
 struct dhcpv4 {
@@ -167,5 +143,3 @@ extern char *interface_resolve(char *device);
 extern void ethers_init(void);
 
 extern void iface_dump(void);
-
-extern struct wifi_iface *wifi_get_interface(char *name);

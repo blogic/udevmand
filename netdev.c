@@ -133,7 +133,6 @@ iface_dump(void)
 
 	blob_buf_init(&b, 0);
 	avl_for_each_element(&iface_tree, iface, avl) {
-		struct wifi_iface *wif;
 		struct iface_ip *ip;
 		void *c, *d;
 
@@ -166,15 +165,6 @@ iface_dump(void)
 	        blobmsg_add_u32(&b, "collisions", iface->stats.collisions);
 		blobmsg_close_table(&b, d);
 
-		wif = wifi_get_interface(iface->name);
-		if (wif) {
-		        static char buf[10];
-
-			blobmsg_add_field(&b, BLOBMSG_TYPE_TABLE, "wifi",
-				blobmsg_data(wif->info), blobmsg_data_len(wif->info));
-			snprintf(buf, sizeof(buf), "%d", wif->noise);
-			blobmsg_add_string(&b, "noise", buf);
-		}
 		bridge_dump_if(iface->name);
 		blobmsg_close_table(&b, c);
 	}

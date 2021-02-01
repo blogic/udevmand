@@ -28,7 +28,6 @@ mac_find(uint8_t *addr)
 	*mac->interface = '\0';
 	INIT_LIST_HEAD(&mac->neigh4);
 	INIT_LIST_HEAD(&mac->neigh6);
-	INIT_LIST_HEAD(&mac->wifi);
 	INIT_LIST_HEAD(&mac->dhcpv4);
 	INIT_LIST_HEAD(&mac->bridge_mac);
 
@@ -86,14 +85,6 @@ mac_dump(struct mac *mac, int interface)
 		list_for_each_entry(neigh, &mac->neigh6, list)
 			blobmsg_add_ipv6(&b, NULL, neigh->ip);
 		blobmsg_close_array(&b, d);
-	}
-
-	if (!list_empty(&mac->wifi)) {
-		struct wifi_station *sta;
-
-		sta = list_first_entry(&mac->wifi, struct wifi_station, mac);
-		blobmsg_add_field(&b, BLOBMSG_TYPE_TABLE, "wifi",
-			blobmsg_data(sta->info), blobmsg_data_len(sta->info));
 	}
 
 	if (!list_empty(&mac->dhcpv4)) {
