@@ -52,7 +52,7 @@ ubus_mac_cb(struct ubus_context *ctx, struct ubus_object *obj,
 	return UBUS_STATUS_OK;
 }
 
-static int
+/*static int
 ubus_interface_cb(struct ubus_context *ctx, struct ubus_object *obj,
 		  struct ubus_request_data *req, const char *method,
 		  struct blob_attr *msg)
@@ -60,7 +60,7 @@ ubus_interface_cb(struct ubus_context *ctx, struct ubus_object *obj,
 	if (!interface_dump())
 		ubus_send_reply(ctx, req, b.head);
 	return UBUS_STATUS_OK;
-}
+}*/
 
 static int
 ubus_port_cb(struct ubus_context *ctx, struct ubus_object *obj,
@@ -74,7 +74,7 @@ ubus_port_cb(struct ubus_context *ctx, struct ubus_object *obj,
 }
 
 static const struct ubus_method topology_methods[] = {
-	UBUS_METHOD_NOARG("interface", ubus_interface_cb),
+	//UBUS_METHOD_NOARG("interface", ubus_interface_cb),
         UBUS_METHOD_NOARG("mac", ubus_mac_cb),
 	UBUS_METHOD_NOARG("port", ubus_port_cb),
 };

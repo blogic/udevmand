@@ -136,7 +136,7 @@ iface_dump(void)
 		struct iface_ip *ip;
 		void *c, *d;
 
-		c = blobmsg_open_table(&b, iface->name);
+		c = blobmsg_open_table(&b, interface_resolve(iface->name));
 		blobmsg_add_mac(&b, "hwaddr", iface->addr);
 		if (!list_empty(&iface->ipv4)) {
 			d = blobmsg_open_array(&b, "ipv4");
