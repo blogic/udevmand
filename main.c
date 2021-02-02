@@ -15,7 +15,7 @@
 
 int main(int argc, char **argv)
 {
-	ulog_open(ULOG_STDIO | ULOG_SYSLOG, LOG_DAEMON, "udevmand");
+	ulog_open(ULOG_STDIO, LOG_DAEMON, "udevmand");
 
 	uloop_init();
 	ubus_init();
