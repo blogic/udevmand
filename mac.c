@@ -56,6 +56,8 @@ mac_dump(struct mac *mac, int interface)
 	char buf[18];
 	void *c, *d;
 
+	neigh_enum();
+
 	clock_gettime(CLOCK_MONOTONIC, &ts);
 
 	last_seen = ts.tv_sec - mac->ts.tv_sec;
@@ -110,6 +112,7 @@ mac_dump(struct mac *mac, int interface)
 	}
 
 	blobmsg_close_array(&b, c);
+	neigh_flush();
 }
 
 int

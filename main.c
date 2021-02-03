@@ -22,7 +22,6 @@ int main(int argc, char **argv)
 	ethers_init();
 	neigh_init();
 	bridge_init();
-	neigh_enum();
 	dhcp_init();
 	uloop_run();
 	uloop_done();

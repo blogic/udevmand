@@ -159,6 +159,17 @@ neigh_enum(void)
 	nl_wait_for_ack(rtnl_sock.sock);
 }
 
+void
+neigh_flush(void)
+{
+	struct neigh *neigh, *tmp;
+
+	avl_for_each_element_safe(&ip4_tree, neigh, avl, tmp)
+		neigh_del(neigh);
+	avl_for_each_element_safe(&ip6_tree, neigh, avl, tmp)
+		neigh_del(neigh);
+}
+
 int
 neigh_init(void)
 {
