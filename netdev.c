@@ -9,8 +9,10 @@ struct iface_ip {
 
 struct iface {
 	struct avl_node avl;
+	int alive;
 	char name[IF_NAMESIZE];
 	struct rtnl_link_stats stats;
+	struct rtnl_link_stats stats_old;
 	struct list_head ipv6, ipv4;
 	uint8_t addr[ETH_ALEN];
 };
@@ -20,12 +22,15 @@ iface_find(char *name)
 {
 	struct iface *iface = avl_find_element(&iface_tree, name, iface, avl);
 
-	if (iface)
+	if (iface) {
+		iface->alive = 1;
 		return iface;
+	}
 	iface = malloc(sizeof(*iface));
 	if (!iface)
 		return NULL;
 	memset(iface, 0, sizeof(*iface));
+	iface->alive = 1;
 	iface->avl.key = strcpy(iface->name, name);
 	INIT_LIST_HEAD(&iface->ipv4);
 	INIT_LIST_HEAD(&iface->ipv6);
@@ -119,9 +124,24 @@ iface_flush(void)
 			list_del(&ip->list);
 			free(ip);
 		}
-		avl_delete(&iface_tree, &iface->avl);
-		free(iface);
+		if (!iface->alive) {
+			avl_delete(&iface_tree, &iface->avl);
+			free(iface);
+		}
+		iface->alive = 0;
 	}
+}
+
+static int get_counter_delta(__u32 new, __u32 old)
+{
+	uint32_t delta;
+
+	if (new < old)
+		delta = UINT32_MAX - old + new;
+	else
+		delta = new - old;
+
+	return delta;
 }
 
 void
@@ -135,6 +155,9 @@ iface_dump(void)
 	avl_for_each_element(&iface_tree, iface, avl) {
 		struct iface_ip *ip;
 		void *c, *d;
+
+		if (!iface->alive)
+			continue;
 
 		c = blobmsg_open_table(&b, interface_resolve(iface->name));
 		blobmsg_add_mac(&b, "hwaddr", iface->addr);
@@ -153,17 +176,28 @@ iface_dump(void)
 		}
 
 		d = blobmsg_open_table(&b, "stats");
-		blobmsg_add_u32(&b, "rx_packets", iface->stats.rx_packets);
-		blobmsg_add_u32(&b, "tx_packets", iface->stats.tx_packets);
-	        blobmsg_add_u32(&b, "rx_bytes", iface->stats.rx_bytes);
-	        blobmsg_add_u32(&b, "tx_bytes", iface->stats.tx_bytes);
-	        blobmsg_add_u32(&b, "rx_errors", iface->stats.rx_errors);
-	        blobmsg_add_u32(&b, "tx_errors", iface->stats.tx_errors);
-	        blobmsg_add_u32(&b, "rx_dropped", iface->stats.rx_dropped);
-	        blobmsg_add_u32(&b, "tx_dropped", iface->stats.tx_dropped);
-	        blobmsg_add_u32(&b, "multicast", iface->stats.multicast);
-	        blobmsg_add_u32(&b, "collisions", iface->stats.collisions);
+		blobmsg_add_u32(&b, "rx_packets",
+			get_counter_delta(iface->stats.rx_packets, iface->stats_old.rx_packets));
+		blobmsg_add_u32(&b, "tx_packets",
+			get_counter_delta(iface->stats.tx_packets, iface->stats_old.tx_packets));
+	        blobmsg_add_u32(&b, "rx_bytes",
+			get_counter_delta(iface->stats.rx_bytes, iface->stats_old.rx_bytes));
+	        blobmsg_add_u32(&b, "tx_bytes",
+			get_counter_delta(iface->stats.tx_bytes, iface->stats_old.tx_bytes));
+	        blobmsg_add_u32(&b, "rx_errors",
+			get_counter_delta(iface->stats.rx_errors, iface->stats_old.rx_errors));
+	        blobmsg_add_u32(&b, "tx_errors",
+			get_counter_delta(iface->stats.tx_errors, iface->stats_old.tx_errors));
+	        blobmsg_add_u32(&b, "rx_dropped",
+			get_counter_delta(iface->stats.rx_dropped, iface->stats_old.rx_dropped));
+	        blobmsg_add_u32(&b, "tx_dropped",
+			get_counter_delta(iface->stats.tx_dropped, iface->stats_old.tx_dropped));
+	        blobmsg_add_u32(&b, "multicast",
+			get_counter_delta(iface->stats.multicast, iface->stats_old.multicast));
+	        blobmsg_add_u32(&b, "collisions",
+			get_counter_delta(iface->stats.collisions, iface->stats_old.collisions));
 		blobmsg_close_table(&b, d);
+		memcpy(&iface->stats_old, &iface->stats, sizeof(iface->stats));
 
 		bridge_dump_if(iface->name);
 		blobmsg_close_table(&b, c);
