@@ -141,7 +141,8 @@ static int get_counter_delta(__u32 new, __u32 old)
 	else
 		delta = new - old;
 
-	return delta;
+
+	return delta > 0 ? delta : 0;
 }
 
 void
