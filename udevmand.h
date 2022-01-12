@@ -140,4 +140,4 @@ char *interface_resolve(char *device);
 
 void ethers_init(void);
 
-void iface_dump(void);
+void iface_dump(int delta);

@@ -67,7 +67,24 @@ ubus_port_cb(struct ubus_context *ctx, struct ubus_object *obj,
 	     struct ubus_request_data *req, const char *method,
 	     struct blob_attr *msg)
 {
-	iface_dump();
+	enum {
+		DUMP_DELTA,
+		__DUMP_MAX
+	};
+
+	static const struct blobmsg_policy dump_policy[__DUMP_MAX] = {
+		[DUMP_DELTA] = { .name = "delta", .type = BLOBMSG_TYPE_INT32 },
+	};
+
+	struct blob_attr *tb[__DUMP_MAX];
+	int delta = 0;
+
+	blobmsg_parse(dump_policy, __DUMP_MAX, tb, blob_data(msg), blob_len(msg));
+
+	if (tb[DUMP_DELTA])
+		delta = blobmsg_get_u32(tb[DUMP_DELTA]);
+
+	iface_dump(delta);
 	ubus_send_reply(ctx, req, b.head);
 
 	return UBUS_STATUS_OK;
