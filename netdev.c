@@ -177,16 +177,16 @@ iface_dump(int delta)
 		}
 
 		d = blobmsg_open_table(&b, "counters");
-		blobmsg_add_u32(&b, "rx_packets", iface->stats.rx_packets);
-		blobmsg_add_u32(&b, "tx_packets", iface->stats.tx_packets);
-	        blobmsg_add_u32(&b, "rx_bytes", iface->stats.rx_bytes);
-	        blobmsg_add_u32(&b, "tx_bytes", iface->stats.tx_bytes);
-	        blobmsg_add_u32(&b, "rx_errors", iface->stats.rx_errors);
-	        blobmsg_add_u32(&b, "tx_errors", iface->stats.tx_errors);
-	        blobmsg_add_u32(&b, "rx_dropped", iface->stats.rx_dropped);
-	        blobmsg_add_u32(&b, "tx_dropped", iface->stats.tx_dropped);
-	        blobmsg_add_u32(&b, "multicast", iface->stats.multicast);
-	        blobmsg_add_u32(&b, "collisions", iface->stats.collisions);
+		blobmsg_add_u64(&b, "rx_packets", iface->stats.rx_packets);
+		blobmsg_add_u64(&b, "tx_packets", iface->stats.tx_packets);
+	        blobmsg_add_u64(&b, "rx_bytes", iface->stats.rx_bytes);
+	        blobmsg_add_u64(&b, "tx_bytes", iface->stats.tx_bytes);
+	        blobmsg_add_u64(&b, "rx_errors", iface->stats.rx_errors);
+	        blobmsg_add_u64(&b, "tx_errors", iface->stats.tx_errors);
+	        blobmsg_add_u64(&b, "rx_dropped", iface->stats.rx_dropped);
+	        blobmsg_add_u64(&b, "tx_dropped", iface->stats.tx_dropped);
+	        blobmsg_add_u64(&b, "multicast", iface->stats.multicast);
+	        blobmsg_add_u64(&b, "collisions", iface->stats.collisions);
 		blobmsg_close_table(&b, d);
 
 		if (delta) {
