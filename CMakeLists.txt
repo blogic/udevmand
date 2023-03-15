@@ -1,5 +1,7 @@
 cmake_minimum_required(VERSION 2.6)
 
+include_directories(/usr/local/include/libnl-tiny)
+
 PROJECT(udevmand C)
 INCLUDE(GNUInstallDirs)
 ADD_DEFINITIONS(-Os -ggdb -Wall -Werror --std=gnu99 -Wmissing-declarations)

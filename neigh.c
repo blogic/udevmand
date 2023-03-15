@@ -181,3 +181,9 @@ neigh_init(void)
 
 	return 0;
 }
+
+void
+neigh_done(void)
+{
+	nl_socket_free(rtnl_sock.sock);
+}

@@ -104,3 +104,13 @@ interface_dump(void)
 	}
 	return 0;
 }
+
+void
+interface_done(void)
+{
+	struct interface *i, *t;
+
+	avl_for_each_element_safe(&interface_tree, i, avl, t)
+		free(i);
+}
+

@@ -38,6 +38,17 @@ iface_find(char *name)
 	return iface;
 }
 
+void
+iface_done(void)
+{
+	struct iface *i, *t;
+
+	avl_for_each_element_safe(&iface_tree, i, avl, t) {
+		avl_delete(&iface_tree, &i->avl);
+		free(i);
+	}
+}
+
 static void
 iface_get(void)
 {

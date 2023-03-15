@@ -115,14 +115,44 @@ mac_dump(struct mac *mac, int interface)
 	neigh_flush();
 }
 
+static void
+mac_flush(struct mac *mac, struct timespec ts)
+{
+	time_t last_seen;
+
+	last_seen = ts.tv_sec - mac->ts.tv_sec;
+	if (last_seen <  60 * 60)
+		return;
+
+	if (!list_empty(&mac->dhcpv4)) {
+		struct dhcpv4 *dhcpv4, *t;
+
+		list_for_each_entry_safe(dhcpv4, t, &mac->dhcpv4, mac)
+			dhcpv4_del(dhcpv4);
+	}
+
+	if (!list_empty(&mac->bridge_mac)) {
+		struct bridge_mac *bridge_mac, *t;
+
+		list_for_each_entry_safe(bridge_mac, t, &mac->bridge_mac, mac)
+			bridge_mac_del(bridge_mac);
+	}
+}
+
 int
 mac_dump_all(void)
 {
-	struct mac *mac;
+	struct mac *mac, *t;
+	struct timespec ts;
 
 	blob_buf_init(&b, 0);
 
 	avl_for_each_element(&mac_tree, mac, avl)
 		mac_dump(mac, 1);
+
+	clock_gettime(CLOCK_MONOTONIC, &ts);
+	avl_for_each_element_safe(&mac_tree, mac, avl, t)
+		mac_flush(mac, ts);
+
 	return 0;
 }

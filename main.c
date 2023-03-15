@@ -26,6 +26,12 @@ int main(int argc, char **argv)
 	uloop_run();
 	uloop_done();
 	ubus_uninit();
+	bridge_flush();
+	blob_buf_free(&b);
+	neigh_done();
+	interface_done();
+	dhcp_done();
+	iface_done();
 
 	return 0;
 }

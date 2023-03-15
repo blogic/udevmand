@@ -112,6 +112,14 @@ dhcpv4_release(struct blob_attr *msg)
 }
 
 void
+dhcpv4_del(struct dhcpv4 *dhcpv4)
+{
+	list_del(&dhcpv4->mac);
+	avl_delete(&dhcpv4_tree, &dhcpv4->avl);
+	free(dhcpv4);
+}
+
+void
 dhcp_init(void)
 {
 	FILE *fp = fopen("/tmp/dhcp.leases", "r");
@@ -136,4 +144,18 @@ dhcp_init(void)
 
 		dhcpv4_add(addr, ip, hostname, NULL);
 	}
+
+	fclose(fp);
 }
+
+void
+dhcp_done(void)
+{
+	struct dhcpv4 *d, *t;
+
+	avl_for_each_element_safe(&dhcpv4_tree, d, avl, t) {
+		avl_delete(&dhcpv4_tree, &d->avl);
+		free(d);
+	}
+}
+

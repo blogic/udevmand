@@ -81,6 +81,8 @@ bridge_dump_if(const char *bridge)
 	}
 	if (c)
 		blobmsg_close_array(&b, c);
+
+	globfree(&gl);
 }
 
 static void
@@ -110,14 +112,14 @@ bridge_read_if(const char *bridge)
 			continue;
 		brif = malloc(sizeof(*brif));
 		if (!brif)
-			return;
+			goto out;
 		strcpy(brif->name, basename(gl.gl_pathv[i]));
 		brif->port_no = port_no;
 		list_add(&brif->list, &bridge_if);
 
 	}
+out:
 	globfree(&gl);
-
 }
 
 static void bridge_tout(struct uloop_timeout *t)
@@ -128,7 +130,7 @@ static void bridge_tout(struct uloop_timeout *t)
 	int i;
 
 	if (glob("/sys/class/net/*", GLOB_MARK | GLOB_ONLYDIR | GLOB_NOSORT, NULL, &gl))
-		return;
+		goto out;
 
 	list_for_each_entry_safe(brif, tmp, &bridge_if, list) {
 		list_del(&brif->list);
@@ -143,6 +145,7 @@ static void bridge_tout(struct uloop_timeout *t)
 	vlist_flush(&bridge_mac);
 	globfree(&gl);
 
+out:
 	uloop_timeout_set(&bridge_timer, 1000);
 }
 
@@ -187,3 +190,29 @@ void bridge_init(void)
 	uloop_timeout_set(&bridge_timer, 1000);
 	vlist_init(&bridge_mac, bridge_cmp, bridge_update);
 }
+
+void bridge_flush(void)
+{
+	struct bridge_if *brif, *tmp;
+	struct bridge_mac *b, *p;
+
+	vlist_for_each_element_safe(&bridge_mac, b, vlist, p) {
+		vlist_delete(&bridge_mac, &b->vlist);
+		free(b);
+	}
+
+	list_for_each_entry_safe(brif, tmp, &bridge_if, list) {
+		list_del(&brif->list);
+		free(brif);
+	}
+}
+
+void
+bridge_mac_del(struct bridge_mac *b)
+{
+	list_del(&b->mac);
+	vlist_delete(&bridge_mac, &b->vlist);
+	free(b);
+}
+
+

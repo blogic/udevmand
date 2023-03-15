@@ -102,7 +102,7 @@ struct bridge_mac {
 
 int avl_mac_cmp(const void *k1, const void *k2, void *ptr);
 
-struct avl_tree mac_tree;
+extern struct avl_tree mac_tree;
 int mac_dump_all(void);
 void mac_dump(struct mac *mac, int interface);
 struct mac* mac_find(uint8_t *addr);
@@ -111,12 +111,13 @@ void mac_update(struct mac *mac, char *iface);
 int neigh_init(void);
 void neigh_enum(void);
 void neigh_flush(void);
+void neigh_done(void);
 
 bool nl_status_socket(struct nl_socket *ev, int protocol,
 		     int (*cb)(struct nl_msg *msg, void *arg), void *priv);
 int genl_send_and_recv(struct nl_socket *ev, struct nl_msg * msg);
 
-struct blob_buf b;
+extern struct blob_buf b;
 void blobmsg_add_iface(struct blob_buf *bbuf, char *name, int index);
 void blobmsg_add_iftype(struct blob_buf *bbuf, const char *name, const uint32_t iftype);
 void blobmsg_add_ipv4(struct blob_buf *bbuf, const char *name, const uint8_t* addr);
@@ -128,16 +129,22 @@ void ubus_uninit(void);
 
 void bridge_init(void);
 void bridge_dump_if(const char *bridge);
+void bridge_flush(void);
+void bridge_mac_del(struct bridge_mac *b);
 
 void dhcpv4_ack(struct blob_attr *msg);
 void dhcpv4_release(struct blob_attr *msg);
 void dhcp_init(void);
+void dhcp_done(void);
+void dhcpv4_del(struct dhcpv4 *dhcpv4);
 
 int interface_dump(void);
 void interface_update(struct blob_attr *msg, int raw);
 void interface_down(struct blob_attr *msg);
 char *interface_resolve(char *device);
+void interface_done(void);
 
 void ethers_init(void);
 
+void iface_done(void);
 void iface_dump(int delta);
