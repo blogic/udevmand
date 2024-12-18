@@ -194,13 +194,8 @@ void bridge_init(void)
 void bridge_flush(void)
 {
 	struct bridge_if *brif, *tmp;
-	struct bridge_mac *b, *p;
 
-	vlist_for_each_element_safe(&bridge_mac, b, vlist, p) {
-		vlist_delete(&bridge_mac, &b->vlist);
-		free(b);
-	}
-
+	vlist_flush_all(&bridge_mac);
 	list_for_each_entry_safe(brif, tmp, &bridge_if, list) {
 		list_del(&brif->list);
 		free(brif);
