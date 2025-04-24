@@ -138,8 +138,9 @@ iface_flush(void)
 		if (!iface->alive) {
 			avl_delete(&iface_tree, &iface->avl);
 			free(iface);
+		} else {
+			iface->alive = 0;
 		}
-		iface->alive = 0;
 	}
 }
 
